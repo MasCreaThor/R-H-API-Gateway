@@ -1,3 +1,4 @@
+// src/typeDefs/index.js
 import { gql } from 'apollo-server-express';
 import authTypes from './authTypes.js';
 import peopleTypes from './peopleTypes.js';
@@ -11,13 +12,6 @@ const baseTypeDefs = gql`
   directive @auth on FIELD_DEFINITION
   directive @hasRole(role: [UserRole!]!) on FIELD_DEFINITION
   
-  # Enumeración para roles de usuario
-  enum UserRole {
-    ADMIN
-    USER
-    HOTEL_MANAGER
-  }
-
   # Tipos base
   type Query {
     _: Boolean
@@ -28,6 +22,7 @@ const baseTypeDefs = gql`
   }
 `;
 
+// Combinamos todos los tipos en un array
 const typeDefs = [
   baseTypeDefs,
   authTypes,

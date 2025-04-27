@@ -11,6 +11,7 @@ const hotelTypes = gql`
     categoria: Int!
     destacado: Boolean!
     calificacion: Float
+    calificacionPromedio: Float
     descripcion: String
     imagenes: [String]
     habitaciones: [Room]
@@ -31,8 +32,13 @@ const hotelTypes = gql`
 
   # Extender Query
   extend type Query {
+    # Obtener lista de hoteles con filtros opcionales
     getHoteles(filter: HotelFilterInput): [Hotel]!
+    
+    # Obtener un hotel específico por ID
     getHotelById(id: ID!): Hotel
+    
+    # Obtener hoteles destacados para mostrar en la página principal
     getHotelesDestacados: [Hotel]!
   }
 `;

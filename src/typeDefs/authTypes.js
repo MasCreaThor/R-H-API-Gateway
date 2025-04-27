@@ -82,12 +82,6 @@ const authTypes = gql`
     # Cambiar contraseña
     changePassword(input: ChangePasswordInput!): Boolean! @auth
   }
-
-  # Directiva para proteger rutas que requieren autenticación
-  directive @auth on FIELD_DEFINITION
-  
-  # Directiva para verificar roles específicos
-  directive @hasRole(role: [UserRole!]!) on FIELD_DEFINITION
 `;
 
 export default authTypes;

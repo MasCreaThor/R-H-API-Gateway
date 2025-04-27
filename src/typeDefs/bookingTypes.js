@@ -36,15 +36,25 @@ const bookingTypes = gql`
 
   # Extender Query y Mutation
   extend type Query {
-    getUserBookings: [Booking]!
-    getBookingById(id: ID!): Booking
-    getHotelBookings(hotelId: ID!): [Booking]!
+    # Obtener reservas del usuario actual
+    getUserBookings: [Booking]! @auth
+    
+    # Obtener una reserva específica por ID
+    getBookingById(id: ID!): Booking @auth
+    
+    # Obtener reservas de un hotel (para gestores)
+    getHotelBookings(hotelId: ID!): [Booking]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
   }
 
   extend type Mutation {
-    createBooking(input: BookingInput!): Booking!
-    updateBookingStatus(id: ID!, estado: BookingStatus!): Booking!
-    cancelBooking(id: ID!): Booking!
+    # Crear una nueva reserva (requiere autenticación)
+    createBooking(input: BookingInput!): Booking! @auth
+    
+    # Actualizar estado de reserva (para gestores)
+    updateBookingStatus(id: ID!, estado: BookingStatus!): Booking! @hasRole(role: [ADMIN, HOTEL_MANAGER])
+    
+    # Cancelar reserva (el usuario solo puede cancelar sus propias reservas)
+    cancelBooking(id: ID!): Booking! @auth
   }
 `;
 
