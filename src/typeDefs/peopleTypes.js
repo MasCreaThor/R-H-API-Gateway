@@ -8,6 +8,7 @@ const peopleTypes = gql`
     nombre: String!
     apellido: String!
     telefono: String
+    nombreCompleto: String
     createdAt: String
     updatedAt: String
   }
@@ -21,11 +22,19 @@ const peopleTypes = gql`
 
   # Extender Query y Mutation
   extend type Query {
-    getPeopleInfo: People
+    # Obtener información personal del usuario autenticado
+    getPeopleInfo: People @auth
+    
+    # Admin: Obtener información personal por ID de usuario
+    getPeopleByUserId(userId: ID!): People @hasRole(role: [ADMIN])
+    
+    # Admin: Listar toda la información personal
+    getAllPeople: [People!]! @hasRole(role: [ADMIN])
   }
 
   extend type Mutation {
-    updatePeopleInfo(input: PeopleInput!): People!
+    # Actualizar información personal
+    updatePeopleInfo(input: PeopleInput!): People! @auth
   }
 `;
 

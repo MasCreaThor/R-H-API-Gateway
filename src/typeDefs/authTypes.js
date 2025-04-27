@@ -1,10 +1,17 @@
 import { gql } from 'apollo-server-express';
 
 const authTypes = gql`
+  # Enumeración para roles de usuario
+  enum UserRole {
+    ADMIN
+    USER
+    HOTEL_MANAGER
+  }
+
   # Tipo para roles de usuario
   type Role {
     id: ID!
-    name: String!
+    name: UserRole!
   }
 
   # Tipo para información básica del usuario
@@ -12,6 +19,7 @@ const authTypes = gql`
     id: ID!
     email: String!
     role: Role!
+    people: People
     createdAt: String
     updatedAt: String
   }
@@ -27,6 +35,7 @@ const authTypes = gql`
   input RegisterInput {
     email: String!
     password: String!
+    passwordConfirm: String!
     roleId: ID
   }
 
@@ -36,17 +45,49 @@ const authTypes = gql`
     password: String!
   }
 
+  # Input para refresh token
+  input RefreshTokenInput {
+    refreshToken: String!
+  }
+
+  # Input para cambiar contraseña
+  input ChangePasswordInput {
+    oldPassword: String!
+    newPassword: String!
+    newPasswordConfirm: String!
+  }
+
   # Extender Query y Mutation
   extend type Query {
-    me: User
-    validateToken: Boolean!
+    # Obtener información del usuario autenticado
+    me: User @auth
+    
+    # Validar token JWT
+    validateToken(token: String!): Boolean!
   }
 
   extend type Mutation {
+    # Registrar un nuevo usuario con información personal
     register(input: RegisterInput!, peopleInput: PeopleInput!): AuthPayload!
+    
+    # Iniciar sesión
     login(input: LoginInput!): AuthPayload!
-    refreshToken(token: String!): AuthPayload!
+    
+    # Refrescar token caducado
+    refreshToken(input: RefreshTokenInput!): AuthPayload!
+    
+    # Cerrar sesión (invalidar refresh token)
+    logout: Boolean!
+    
+    # Cambiar contraseña
+    changePassword(input: ChangePasswordInput!): Boolean! @auth
   }
+
+  # Directiva para proteger rutas que requieren autenticación
+  directive @auth on FIELD_DEFINITION
+  
+  # Directiva para verificar roles específicos
+  directive @hasRole(role: [UserRole!]!) on FIELD_DEFINITION
 `;
 
 export default authTypes;

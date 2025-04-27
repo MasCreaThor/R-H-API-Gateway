@@ -1,50 +1,48 @@
-// Resolvers para GraphQL
+// src/resolvers/index.js
+import authResolvers from './authResolvers.js';
+import peopleResolvers from './peopleResolvers.js';
+
+// Combinar todos los resolvers
 const resolvers = {
-    Query: {
-      _: () => true,
-      // Resolvers para auth
-      me: () => null,
-      validateToken: () => false,
-      
-      // Resolvers para people
-      getPeopleInfo: () => null,
-      
-      // Resolvers para hoteles
-      getHoteles: () => [],
-      getHotelById: () => null,
-      getHotelesDestacados: () => [],
-      
-      // Resolvers para habitaciones
-      getRoomsByHotelId: () => [],
-      getRoomById: () => null,
-      checkRoomAvailability: () => false,
-      
-      // Resolvers para reservas
-      getUserBookings: () => [],
-      getBookingById: () => null,
-      getHotelBookings: () => []
-    },
-    Mutation: {
-      _: () => true,
-      // Resolvers para auth
-      register: () => null,
-      login: () => null,
-      refreshToken: () => null,
-      
-      // Resolvers para people
-      updatePeopleInfo: () => null,
-      
-      // Resolvers para habitaciones
-      createRoom: () => null,
-      updateRoom: () => null,
-      deleteRoom: () => false,
-      updateRoomAvailability: () => null,
-      
-      // Resolvers para reservas
-      createBooking: () => null,
-      updateBookingStatus: () => null,
-      cancelBooking: () => null
-    }
-  };
+  Query: {
+    _: () => true,
+    ...authResolvers.Query,
+    ...peopleResolvers.Query,
+    
+    // Resolvers para hoteles (a implementar)
+    getHoteles: () => [],
+    getHotelById: () => null,
+    getHotelesDestacados: () => [],
+    
+    // Resolvers para habitaciones (a implementar)
+    getRoomsByHotelId: () => [],
+    getRoomById: () => null,
+    checkRoomAvailability: () => false,
+    
+    // Resolvers para reservas (a implementar)
+    getUserBookings: () => [],
+    getBookingById: () => null,
+    getHotelBookings: () => []
+  },
+  Mutation: {
+    _: () => true,
+    ...authResolvers.Mutation,
+    ...peopleResolvers.Mutation,
+    
+    // Resolvers para habitaciones (a implementar)
+    createRoom: () => null,
+    updateRoom: () => null,
+    deleteRoom: () => false,
+    updateRoomAvailability: () => null,
+    
+    // Resolvers para reservas (a implementar)
+    createBooking: () => null,
+    updateBookingStatus: () => null,
+    cancelBooking: () => null
+  },
   
-  export default resolvers;
+  // Resolver para tipos personalizados
+  People: peopleResolvers.People
+};
+
+export default resolvers;
