@@ -30,21 +30,38 @@ const authResolvers = {
      * Validar si un token JWT es válido
      */
     validateToken: async (_, { token }, { services, fetch }) => {
-      try {
-        const response = await fetch(`${services.auth}/api/auth/validate-token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        });
+  try {
+    // Opción 1: Enviar el token directamente como texto plano
+    const response = await fetch(`${services.auth}/api/auth/validate-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain', // Cambiar a text/plain
+      },
+      body: token, // Enviar el token directamente, sin JSON.stringify
+    });
 
-        return response.ok;
-      } catch (error) {
-        console.error('Error al validar token:', error);
-        return false;
-      }
-    },
+    // O, para mantener application/json, primero extraer el token real asi
+    /*
+    const response = await fetch(`${services.auth}/api/auth/validate-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Añadir como header de autorización
+      },
+      body: JSON.stringify({}) // Cuerpo vacío o estructura que espera el backend
+    });
+    */
+
+    if (response.ok) {
+      const result = await response.json();
+      return result; // O result.isValid dependiendo de la estructura
+    }
+    return false;
+  } catch (error) {
+    console.error('Error al validar token:', error);
+    return false;
+  }
+},
   },
 
   Mutation: {
