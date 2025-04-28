@@ -1,6 +1,8 @@
 // src/resolvers/index.js
 import authResolvers from './authResolvers.js';
 import peopleResolvers from './peopleResolvers.js';
+import hotelResolvers from './hotelResolvers.js';
+import roomResolvers from './roomResolvers.js';
 
 // Combinamos todos los resolvers en un solo objeto
 const resolvers = {
@@ -8,39 +10,21 @@ const resolvers = {
     _: () => true, // Query placeholder
     ...authResolvers.Query,
     ...peopleResolvers.Query,
-    
-    // Placeholders para resolvers que se implementarán en futuros sprints
-    getHoteles: () => [],
-    getHotelById: () => null,
-    getHotelesDestacados: () => [],
-    
-    getRoomsByHotelId: () => [],
-    getRoomById: () => null,
-    checkRoomAvailability: () => false,
-    
-    getUserBookings: () => [],
-    getBookingById: () => null,
-    getHotelBookings: () => []
+    ...hotelResolvers.Query,
+    ...roomResolvers.Query,
   },
   
   Mutation: {
     _: () => true, // Mutation placeholder
     ...authResolvers.Mutation,
     ...peopleResolvers.Mutation,
-    
-    // Placeholders para resolvers que se implementarán en futuros sprints
-    createRoom: () => null,
-    updateRoom: () => null,
-    deleteRoom: () => false,
-    updateRoomAvailability: () => null,
-    
-    createBooking: () => null,
-    updateBookingStatus: () => null,
-    cancelBooking: () => null
+    ...roomResolvers.Mutation,
   },
   
   // Tipos personalizados
-  People: peopleResolvers.People
+  People: peopleResolvers.People,
+  Hotel: hotelResolvers.Hotel,
+  Room: roomResolvers.Room,
 };
 
 export default resolvers;

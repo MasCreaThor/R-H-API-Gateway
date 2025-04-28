@@ -34,16 +34,25 @@ const bookingTypes = gql`
     comentarios: String
   }
 
+  # Input para filtrar reservas
+  input BookingFilterInput {
+    estado: BookingStatus
+    fechaEntradaDesde: String
+    fechaEntradaHasta: String
+    fechaSalidaDesde: String
+    fechaSalidaHasta: String
+  }
+
   # Extender Query y Mutation
   extend type Query {
     # Obtener reservas del usuario actual
-    getUserBookings: [Booking]! @auth
+    getUserBookings(filter: BookingFilterInput): [Booking]! @auth
     
     # Obtener una reserva específica por ID
     getBookingById(id: ID!): Booking @auth
     
     # Obtener reservas de un hotel (para gestores)
-    getHotelBookings(hotelId: ID!): [Booking]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
+    getHotelBookings(hotelId: ID!, filter: BookingFilterInput): [Booking]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
   }
 
   extend type Mutation {

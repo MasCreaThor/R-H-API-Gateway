@@ -5,6 +5,7 @@ const roomTypes = gql`
   type Room {
     id: ID!
     hotelId: ID!
+    hotel: Hotel
     tipo: String!
     capacidad: Int!
     precio: Float!
@@ -29,10 +30,20 @@ const roomTypes = gql`
     amenities: [String]
   }
 
+  # Input para filtrar habitaciones
+  input RoomFilterInput {
+    fechaEntrada: String
+    fechaSalida: String
+    capacidad: Int
+    precioMin: Float
+    precioMax: Float
+    disponible: Boolean
+  }
+
   # Extender Query y Mutation
   extend type Query {
     # Obtener habitaciones por hotel
-    getRoomsByHotelId(hotelId: ID!): [Room]!
+    getRoomsByHotelId(hotelId: ID!, filter: RoomFilterInput): [Room]!
     
     # Obtener habitación por ID
     getRoomById(id: ID!): Room
