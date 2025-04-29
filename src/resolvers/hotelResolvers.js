@@ -15,7 +15,9 @@ const hotelResolvers = {
           const params = new URLSearchParams();
           
           if (filter.ciudad) params.append('ciudad', filter.ciudad);
+          // Permitir filtrado por estrellas o categoría (ID)
           if (filter.categoria) params.append('categoria', filter.categoria);
+          if (filter.estrellas) params.append('estrellas', filter.estrellas);
           if (filter.destacado !== undefined) params.append('destacado', filter.destacado);
           if (filter.precioMin) params.append('precioMin', filter.precioMin);
           if (filter.precioMax) params.append('precioMax', filter.precioMax);
@@ -264,6 +266,29 @@ const hotelResolvers = {
         console.error('Error al obtener habitaciones del hotel:', error);
         return [];
       }
+    },
+    
+    // Resolver específico para garantizar la estructura correcta de categoría
+    categoria: async (parent, _, { services, fetch }) => {
+      // Si ya tenemos la información completa de categoría, usarla
+      if (parent.categoria && parent.categoria.id) {
+        return parent.categoria;
+      }
+      
+      // Si solo tenemos el ID de categoría, obtener la información completa
+      if (parent.categoryId) {
+        try {
+          const response = await fetch(`${services.reservas}/api/categories/${parent.categoryId}`);
+          if (response.ok) {
+            return await response.json();
+          }
+        } catch (error) {
+          console.error('Error al obtener categoría del hotel:', error);
+        }
+      }
+      
+      // Devolver un objeto vacío si no podemos obtener la categoría
+      return null;
     }
   }
 };

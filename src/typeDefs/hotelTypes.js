@@ -12,7 +12,6 @@ const hotelTypes = gql`
     destacado: Boolean!
     calificacion: Float
     calificacionPromedio: Float
-    estrellas: Int
     descripcion: String
     imagenes: [String]
     habitaciones: [Room]
@@ -20,7 +19,7 @@ const hotelTypes = gql`
     updatedAt: String
   }
 
-  # Tipo para categorías de hotel
+  # Tipo para categoría de hotel
   type Category {
     id: ID!
     nombre: String!
@@ -34,7 +33,8 @@ const hotelTypes = gql`
     fechaEntrada: String
     fechaSalida: String
     huespedes: Int
-    categoria: Int       # Número de estrellas (1-5)
+    categoria: Int
+    estrellas: Int
     precioMin: Float
     precioMax: Float
     destacado: Boolean
@@ -46,7 +46,7 @@ const hotelTypes = gql`
     direccion: String!
     ciudad: String!
     pais: String!
-    categoria: Int!      # Número de estrellas (1-5)
+    categoria: Int!
     descripcion: String
     imagenes: [String]
   }
@@ -82,6 +82,9 @@ const hotelTypes = gql`
     
     # Obtener hoteles destacados para mostrar en la página principal
     getHotelesDestacados: [Hotel]!
+    
+    # Obtener todas las categorías de hotel
+    getCategorias: [Category]!
     
     # Dashboard ADMIN: Obtener estadísticas de hoteles
     getHotelStats: HotelStats @hasRole(role: [ADMIN])

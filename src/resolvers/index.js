@@ -4,15 +4,18 @@ import peopleResolvers from './peopleResolvers.js';
 import hotelResolvers from './hotelResolvers.js';
 import roomResolvers from './roomResolvers.js';
 import bookingResolvers from './bookingResolvers.js';
+import categoryResolvers from './categoryResolvers.js';
 
+// Combinamos todos los resolvers en un solo objeto
 const resolvers = {
   Query: {
-    _: () => true, // Query placeholder
+    _: () => true, // Query placeholder (no debe existir Query placeholder en GraphQL)
     ...authResolvers.Query,
     ...peopleResolvers.Query,
     ...hotelResolvers.Query,
     ...roomResolvers.Query,
-    ...bookingResolvers.Query
+    ...bookingResolvers.Query,
+    ...categoryResolvers.Query
   },
   
   Mutation: {
