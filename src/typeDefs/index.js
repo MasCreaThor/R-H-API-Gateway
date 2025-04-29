@@ -5,12 +5,14 @@ import peopleTypes from './peopleTypes.js';
 import hotelTypes from './hotelTypes.js';
 import roomTypes from './roomTypes.js';
 import bookingTypes from './bookingTypes.js';
+import categoryTypes from './categoryTypes.js';
 
 // Definición de tipos base y directivas
 const baseTypeDefs = gql`
   # Directivas para autenticación y autorización
   directive @auth on FIELD_DEFINITION
   directive @hasRole(role: [UserRole!]!) on FIELD_DEFINITION
+  directive @ownerOnly(idField: String = "id") on FIELD_DEFINITION
   
   # Tipos base
   type Query {
@@ -29,7 +31,8 @@ const typeDefs = [
   peopleTypes,
   hotelTypes,
   roomTypes,
-  bookingTypes
+  bookingTypes,
+  categoryTypes
 ];
 
 export default typeDefs;
