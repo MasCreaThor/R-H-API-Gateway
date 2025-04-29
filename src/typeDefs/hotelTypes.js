@@ -1,32 +1,26 @@
-// src/typeDefs/hotelTypes.js
-
 import { gql } from 'apollo-server-express';
 
 const hotelTypes = gql`
-  # Tipo para información de país
-  type Country {
+  # Tipo para hoteles
+  type Hotel {
     id: ID!
     nombre: String!
-    codigo: String!
+    direccion: String!
+    ciudad: String!
+    pais: String!
+    categoria: Category
+    destacado: Boolean!
+    calificacion: Float
+    calificacionPromedio: Float
+    estrellas: Int
+    descripcion: String
+    imagenes: [String]
+    habitaciones: [Room]
+    createdAt: String
+    updatedAt: String
   }
 
-  # Tipo para información de ciudad
-  type City {
-    id: ID!
-    nombre: String!
-    country: Country
-  }
-
-  # Tipo para información de dirección
-  type Address {
-    id: ID!
-    calle: String!
-    numero: String
-    codigoPostal: String
-    city: City
-  }
-
-  # Tipo para categoría de hotel
+  # Tipo para categorías de hotel
   type Category {
     id: ID!
     nombre: String!
@@ -34,47 +28,51 @@ const hotelTypes = gql`
     descripcion: String
   }
 
-  # Tipo para calificación de hotel
-  type Rating {
-    id: ID!
-    hotelId: ID!
-    userId: ID!
-    puntuacion: Float!
-    comentario: String
-    createdAt: String
-    updatedAt: String
-  }
-
-  # Tipo para hoteles
-  type Hotel {
-    id: ID!
-    nombre: String!
-    direccion: Address
-    categoria: Category
-    destacado: Boolean!
-    calificacionPromedio: Float
-    descripcion: String
-    imagenes: [String]
-    habitaciones: [Room]
-    calificaciones: [Rating]
-    createdAt: String
-    updatedAt: String
-  }
-
   # Input para filtros de búsqueda de hoteles
   input HotelFilterInput {
     ciudad: String
-    pais: String
     fechaEntrada: String
     fechaSalida: String
     huespedes: Int
-    categoria: Int
+    categoria: Int       # Número de estrellas (1-5)
     precioMin: Float
     precioMax: Float
     destacado: Boolean
   }
 
-  # Extender Query
+  # Input para crear/actualizar hotel
+  input HotelInput {
+    nombre: String!
+    direccion: String!
+    ciudad: String!
+    pais: String!
+    categoria: Int!      # Número de estrellas (1-5)
+    descripcion: String
+    imagenes: [String]
+  }
+
+  # Estadísticas de hoteles para dashboard
+  type HotelStats {
+    totalHoteles: Int!
+    hotelesActivos: Int!
+    hotelesDestacados: Int!
+    categoriasMasComunes: [CategoryStat]
+    ciudadesMasComunes: [CityStat]
+  }
+
+  # Estadística por categoría
+  type CategoryStat {
+    categoria: Int!
+    cantidad: Int!
+  }
+
+  # Estadística por ciudad
+  type CityStat {
+    ciudad: String!
+    cantidad: Int!
+  }
+
+  # Extender Query y Mutation
   extend type Query {
     # Obtener lista de hoteles con filtros opcionales
     getHoteles(filter: HotelFilterInput): [Hotel]!
@@ -83,7 +81,24 @@ const hotelTypes = gql`
     getHotelById(id: ID!): Hotel
     
     # Obtener hoteles destacados para mostrar en la página principal
-    getHotelesDestacados(limit: Int): [Hotel]!
+    getHotelesDestacados: [Hotel]!
+    
+    # Dashboard ADMIN: Obtener estadísticas de hoteles
+    getHotelStats: HotelStats @hasRole(role: [ADMIN])
+    
+    # Dashboard HOTEL_MANAGER: Obtener hoteles gestionados por el manager
+    getManagerHotels: [Hotel!]! @hasRole(role: [HOTEL_MANAGER])
+  }
+
+  extend type Mutation {
+    # ADMIN: Actualizar estado de destacado de un hotel
+    updateHotelDestacado(id: ID!, destacado: Boolean!): Hotel! @hasRole(role: [ADMIN])
+    
+    # ADMIN: Crear un nuevo hotel
+    createHotel(input: HotelInput!): Hotel! @hasRole(role: [ADMIN])
+    
+    # ADMIN/HOTEL_MANAGER: Actualizar información de un hotel
+    updateHotel(id: ID!, input: HotelInput!): Hotel! @hasRole(role: [ADMIN, HOTEL_MANAGER])
   }
 `;
 

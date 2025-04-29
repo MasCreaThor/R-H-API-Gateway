@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import typeDefs from './typeDefs/index.js';
 import resolvers from './resolvers/index.js';
 import { authenticate } from './middlewares/auth.js';
-import { authDirectiveTransformer, hasRoleDirectiveTransformer } from './directives/authDirectives.js';
+import { applyAuthDirectives } from './directives/authDirectives.js';
 import fetch from 'node-fetch';
 
 // Carga variables de entorno
@@ -34,9 +34,8 @@ async function startApolloServer() {
   // Crear schema con directivas
   let schema = makeExecutableSchema({ typeDefs, resolvers });
   
-  // Aplicar transformadores de directivas
-  schema = authDirectiveTransformer(schema);
-  schema = hasRoleDirectiveTransformer(schema);
+  // Aplicar todas las directivas de autenticación
+  schema = applyAuthDirectives(schema);
   
   // Servidor Apollo
   const server = new ApolloServer({

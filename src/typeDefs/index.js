@@ -11,6 +11,7 @@ const baseTypeDefs = gql`
   # Directivas para autenticación y autorización
   directive @auth on FIELD_DEFINITION
   directive @hasRole(role: [UserRole!]!) on FIELD_DEFINITION
+  directive @ownerOnly(idField: String = "id") on FIELD_DEFINITION
   
   # Tipos base
   type Query {

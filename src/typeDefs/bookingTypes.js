@@ -13,6 +13,7 @@ const bookingTypes = gql`
     precioTotal: Float!
     numeroHuespedes: Int!
     comentarios: String
+    cancelable: Boolean
     createdAt: String
     updatedAt: String
   }
@@ -34,25 +35,39 @@ const bookingTypes = gql`
     comentarios: String
   }
 
-  # Input para filtrar reservas
-  input BookingFilterInput {
-    estado: BookingStatus
-    fechaEntradaDesde: String
-    fechaEntradaHasta: String
-    fechaSalidaDesde: String
-    fechaSalidaHasta: String
+  # Estadísticas de reservas para dashboard
+  type BookingStats {
+    totalReservas: Int!
+    reservasPendientes: Int!
+    reservasConfirmadas: Int!
+    reservasCanceladas: Int!
+    reservasCompletadas: Int!
+    ingresoTotal: Float!
+    promedioEstancia: Float!
+    topHoteles: [StatsHotel]
+  }
+
+  # Estadísticas por hotel
+  type StatsHotel {
+    id: ID!
+    nombre: String!
+    reservas: Int!
+    ingresos: Float!
   }
 
   # Extender Query y Mutation
   extend type Query {
     # Obtener reservas del usuario actual
-    getUserBookings(filter: BookingFilterInput): [Booking]! @auth
+    getUserBookings: [Booking!]! @auth
     
     # Obtener una reserva específica por ID
     getBookingById(id: ID!): Booking @auth
     
     # Obtener reservas de un hotel (para gestores)
-    getHotelBookings(hotelId: ID!, filter: BookingFilterInput): [Booking]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
+    getHotelBookings(hotelId: ID!): [Booking!]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
+    
+    # Dashboard: Estadísticas de reservas (para gestores)
+    getBookingStats: BookingStats @hasRole(role: [ADMIN, HOTEL_MANAGER])
   }
 
   extend type Mutation {

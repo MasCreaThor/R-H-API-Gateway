@@ -69,3 +69,58 @@ export function hasRoleDirectiveTransformer(schema) {
     },
   });
 }
+
+/**
+ * Directiva @ownerOnly para permitir que un usuario acceda solo a sus propios recursos
+ * Aplica esta transformación al esquema GraphQL
+ * @param {Object} schema - Esquema GraphQL
+ * @returns {Object} - Esquema transformado
+ */
+export function ownerOnlyDirectiveTransformer(schema) {
+  return mapSchema(schema, {
+    [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
+      const ownerOnlyDirective = getDirective(schema, fieldConfig, 'ownerOnly')?.[0];
+      
+      if (ownerOnlyDirective) {
+        const { idField } = ownerOnlyDirective;
+        const { resolve = defaultFieldResolver } = fieldConfig;
+        
+        // Reemplazar el resolver original con uno que valida la propiedad
+        fieldConfig.resolve = async function (source, args, context, info) {
+          if (!context.user) {
+            throw new AuthenticationError('Debe estar autenticado para acceder a este recurso');
+          }
+          
+          // Admins y HOTEL_MANAGER tienen permiso total
+          if (context.user.role?.name === 'ADMIN' || context.user.role?.name === 'HOTEL_MANAGER') {
+            return resolve(source, args, context, info);
+          }
+          
+          // Verificar si el ID del recurso coincide con el ID del usuario
+          const resourceId = args[idField];
+          if (resourceId && resourceId !== context.user.id) {
+            throw new ForbiddenError('No tiene permiso para acceder a este recurso');
+          }
+          
+          return resolve(source, args, context, info);
+        };
+      }
+      
+      return fieldConfig;
+    },
+  });
+}
+
+/**
+ * Aplicar todas las directivas de autenticación y autorización
+ * @param {Object} schema - Esquema GraphQL
+ * @returns {Object} - Esquema transformado con todas las directivas aplicadas
+ */
+export function applyAuthDirectives(schema) {
+  // Aplicar las directivas en orden
+  schema = authDirectiveTransformer(schema);
+  schema = hasRoleDirectiveTransformer(schema);
+  schema = ownerOnlyDirectiveTransformer(schema);
+  
+  return schema;
+}

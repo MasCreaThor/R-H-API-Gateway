@@ -5,7 +5,6 @@ const roomTypes = gql`
   type Room {
     id: ID!
     hotelId: ID!
-    hotel: Hotel
     tipo: String!
     capacidad: Int!
     precio: Float!
@@ -14,6 +13,7 @@ const roomTypes = gql`
     imagenes: [String]
     descripcion: String
     amenities: [String]
+    hotel: Hotel
     createdAt: String
     updatedAt: String
   }
@@ -35,21 +35,24 @@ const roomTypes = gql`
     fechaEntrada: String
     fechaSalida: String
     capacidad: Int
-    precioMin: Float
-    precioMax: Float
-    disponible: Boolean
+    disponibilidad: Boolean
+    tipo: String
+    hotelId: ID
   }
 
   # Extender Query y Mutation
   extend type Query {
     # Obtener habitaciones por hotel
-    getRoomsByHotelId(hotelId: ID!, filter: RoomFilterInput): [Room]!
+    getRoomsByHotelId(hotelId: ID!, filter: RoomFilterInput): [Room!]!
     
     # Obtener habitación por ID
     getRoomById(id: ID!): Room
     
     # Verificar disponibilidad en fechas específicas
     checkRoomAvailability(id: ID!, fechaEntrada: String!, fechaSalida: String!): Boolean!
+    
+    # Dashboard: Obtener todas las habitaciones con opciones de filtrado (admin)
+    getDashboardRooms(filter: RoomFilterInput): [Room!]! @hasRole(role: [ADMIN, HOTEL_MANAGER])
   }
 
   extend type Mutation {
