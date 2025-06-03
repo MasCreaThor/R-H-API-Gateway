@@ -6,18 +6,20 @@ const bookingResolvers = {
     /**
      * Obtener las reservas del usuario autenticado
      */
-    getUserBookings: async (_, __, { user, services, fetch }) => {
+    getUserBookings: async (_, __, { user, services, fetch, token }) => {
       if (!user) {
         throw new AuthenticationError('Debe estar autenticado para ver sus reservas');
       }
-
       try {
-        const response = await fetch(`${services.reservas}/api/bookings/user`);
-
+        const response = await fetch(`${services.reservas}/api/bookings/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error('Error al obtener reservas del usuario');
         }
-
         return await response.json();
       } catch (error) {
         console.error('Error en resolver getUserBookings:', error);

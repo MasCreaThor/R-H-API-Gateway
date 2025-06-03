@@ -9,6 +9,7 @@ import resolvers from './resolvers/index.js';
 import { authenticate } from './middlewares/auth.js';
 import { applyAuthDirectives } from './directives/authDirectives.js';
 import fetch from 'node-fetch';
+import jwt from 'jsonwebtoken';
 
 // Carga variables de entorno
 dotenv.config();
@@ -17,6 +18,7 @@ dotenv.config();
 const PORT = process.env.PORT || 4000;
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8080';
 const RESERVAS_SERVICE_URL = process.env.RESERVAS_SERVICE_URL || 'http://localhost:3000';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 async function startApolloServer() {
   // Aplicación Express
@@ -41,13 +43,25 @@ async function startApolloServer() {
   const server = new ApolloServer({
     schema,
     context: async ({ req }) => {
-      // Extraer y verificar el token JWT
-      const user = await authenticate(req);
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.replace('Bearer ', '');
+      let user = null;
+      if (token) {
+        try {
+          user = jwt.verify(token, JWT_SECRET);
+          console.log('[API-GATEWAY] Usuario decodificado:', user);
+        } catch (err) {
+          console.error('[API-GATEWAY] JWT verification error:', err.message);
+          user = null;
+        }
+      } else {
+        console.log('[API-GATEWAY] No se recibió token');
+      }
       
-      // Incluir URLs de los servicios y el usuario autenticado en el contexto
-      return { 
-        req, 
-        user, 
+      return {
+        // ...otros contextos...
+        token,
+        user,
         services: {
           auth: AUTH_SERVICE_URL,
           reservas: RESERVAS_SERVICE_URL
@@ -62,14 +76,15 @@ async function startApolloServer() {
             url.includes('/api/auth/validate-token');
           
           // Añadir token de autenticación si existe y no es una ruta pública
-          if (user && req.headers.authorization && !isPublicAuthEndpoint) {
+          if (token && !isPublicAuthEndpoint) {
             options.headers = {
               ...options.headers,
-              'Authorization': req.headers.authorization
+              'Authorization': `Bearer ${token}`
             };
           }
           return fetch(url, options);
-        }
+        },
+        req,
       };
     },
     formatError: (error) => {
